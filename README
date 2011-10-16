@@ -1,0 +1,8 @@
+newlisp fastcgi.lsp
+
+the port is 9000
+
+Not finished yet,only a test version now
+
+-------NEXT will write  mulit processes partment
+
