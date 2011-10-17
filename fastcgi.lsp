@@ -1,4 +1,4 @@
-;; newlisp fastcgi support [dexterkidd#me.com]
+;newlisp fastcgi support [dexterkidd#me.com]
 (define (put-str str , page start end)
     (set 'page str)
     (set 'start (find "<%" page))
@@ -13,7 +13,7 @@
 	(if (not (nil? get-expr))
 		(begin
 		(do-while (not (nil? get-expr))
-			(setq ret (append ret (string (eval-string  (string get-expr)))))
+			(setq ret (append ret (string (eval-string  (string get-expr) MAIN (last-error)) )))
 			(setq get-expr  (read-expr lsp_body MAIN () $0))
 		)
 		)
@@ -22,7 +22,7 @@
         (set 'page (slice page (+ end 2)))
         (set 'start (find "<%" page))
         (set 'end (find "%>" page)))
-	
+
 	(setq ret (append ret page))
 	ret
 )
@@ -65,7 +65,7 @@
 	(begin
 		; existed
 		(setq content (string (eval-page lsp_file)))
-		
+
 	)
 	(begin
 		(setq content  "file not found")
