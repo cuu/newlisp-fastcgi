@@ -9,15 +9,25 @@
 	(setq lsp_body (slice page (+ start 2) (- end start 2)))
 	(setq $0 0)
 
-	(setq get-expr (read-expr lsp_body MAIN () $0))
-	(if (not (nil? get-expr))
-		(begin
-		(do-while (not (nil? get-expr))
-			(setq ret (append ret (string (eval-string  (string get-expr) MAIN (last-error)) )))
-			(setq get-expr  (read-expr lsp_body MAIN () $0))
+;	(catch (read-expr lsp_body MAIN () $0) 'get-expr)
+	(catch (read-expr lsp_body MAIN () $0) 'get-expr)
+	(do-while (and (nil? (find "ERR:" get-expr)) (not (nil?  get-expr)))
+		(if (true? (find "ERR:"  get-expr))
+			(begin
+			(setq ret (append ret (string get-expr)))
+			)
+			(begin
+				(catch (eval-string  (string get-expr)) 'err-ret)
+				(if-not (nil? err-ret)
+					(setq ret  (append ret (string err-ret))))
+			)
+		)   
+		;(setq get-expr  (read-expr lsp_body MAIN () $0))
+		(catch (read-expr lsp_body MAIN () $0) 'get-expr)
+		(if (true? (find "ERR:"  get-expr))
+			(setq ret (append ret (string get-expr)))
 		)
-		)
-	)
+	);;ends of do-while
 
         (set 'page (slice page (+ end 2)))
         (set 'start (find "<%" page))
@@ -64,7 +74,7 @@
 (if (file? lsp_file)
 	(begin
 		; existed
-		(setq content (string (eval-page lsp_file)))
+		(setq content  (eval-page lsp_file))
 
 	)
 	(begin
