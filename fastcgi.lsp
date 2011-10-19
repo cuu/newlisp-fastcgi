@@ -19,9 +19,10 @@
 			(begin
 				(catch (eval-string  (string get-expr)) 'err-ret)
 				(if-not (nil? err-ret)
-					(setq ret  (append ret (string err-ret))))
-				(if-not (nil? (sys-error))
-					(setq ret  (append ret (string (sys-error)))))
+					(setq ret  (append ret (string err-ret)))
+					(if-not (nil? (sys-error))
+						(setq ret  (append ret (string (sys-error)))))
+				)
 			)
 		)   
 		;(setq get-expr  (read-expr lsp_body MAIN () $0))
