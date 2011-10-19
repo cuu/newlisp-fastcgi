@@ -20,6 +20,8 @@
 				(catch (eval-string  (string get-expr)) 'err-ret)
 				(if-not (nil? err-ret)
 					(setq ret  (append ret (string err-ret))))
+				(if-not (nil? (sys-error))
+					(setq ret  (append ret (string (sys-error)))))
 			)
 		)   
 		;(setq get-expr  (read-expr lsp_body MAIN () $0))
@@ -97,6 +99,6 @@
 (set 'output (append fcgi_header headers content fcgi_footer))
 
 (net-send server output)
-(close server)
+(net-close server)
 
 
