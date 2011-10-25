@@ -58,6 +58,7 @@
 (setq children_num 10)
 
 (set 'socket (net-listen port))
+(if (nil? socket) (exit))
 (setq lookstr "SCRIPT_FILENAME")
 (setq (global 'y) 0)
 
@@ -111,8 +112,9 @@
 
 (setf pidarray (array children_num))
 
-(for (x 1 children_num)
+(for (x 0 (- children_num 1))
 	(setq (nth x pidarray) (fork (fcgi_ret)))
+	(sleep 1000)
 )
 
 ;; master start all process to work
