@@ -3,8 +3,14 @@ the port is 9000
 Not finished yet,only a test version now
 Have been tested under nginx/lighttpd
 
-2010 10 16 10:38 AM
+2011 10 16 10:38 AM
 -------NEXT will write  mulit processes partment-------
+
+2011 10 25 9:49 PM
+PASSed the first testing,working well
+the still problom is every request can not be over 65535 bytes
+next time, I'll do this,easy seprating net-send.
+
 
 
 

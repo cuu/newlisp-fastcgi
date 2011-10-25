@@ -59,6 +59,7 @@
 
 (set 'socket (net-listen port))
 (if (nil? socket) (exit))
+(sleep 2000)
 (setq lookstr "SCRIPT_FILENAME")
 (setq (global 'y) 0)
 
