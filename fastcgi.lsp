@@ -22,8 +22,8 @@
 				(catch (eval-string  (string get-expr)) 'err-ret)
 				(if-not (nil? err-ret)
 					(setq ret  (append ret (string err-ret)))
-					(if-not (nil? (sys-error))
-						(setq ret  (append ret (string (sys-error)))))
+					;(if-not (nil? (sys-error))
+					;	(setq ret  (append ret (string (sys-error)))))
 				)
 			)
 		)   
@@ -70,8 +70,11 @@
 (define (fcgi_ret) 
 	(semaphore sid -1);; wait at the first of forking
 	(while (share mem)
+		(while (not (net-select socket "read" 1000))
+			(if (net-error) (print (net-error))))
+
 		(set 'server (net-accept socket))
-		(net-select server  "read" 1000) ; read the latest
+;		(net-select server  "read" 1000) ; read the latest
 		(net-receive server buffer 8192)
 		;; processing lsp to html
 		(replace "\000" buffer "\001")
@@ -105,7 +108,7 @@
 		)
 
 		(set 'output (append fcgi_header headers content fcgi_footer))
-
+		;(println "\n" (getpid) )
 		(net-send server output)
 		(net-close server)
 	); end while  share mem
