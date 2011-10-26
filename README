@@ -1,4 +1,4 @@
-newlisp fastcgi.lsp
+newlisp fastcgi.lsp || newlisp -c fastcgi.lsp  
 the port is 9000
 Not finished yet,only a test version now
 Have been tested under nginx/lighttpd
@@ -11,6 +11,26 @@ PASSed the first testing,working well
 the still problom is every request can not be over 65535 bytes
 next time, I'll do this,easy seprating net-send.
 
+-----------------------------------------
+2011 10 26 11:55 AM test result  ,by webbench,server nginx 
 
+dexter-laptop O1ADsite # webbench -t 10 -c 1000 http://127.0.0.1:81/index.php
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
 
+Benchmarking: GET http://127.0.0.1:81/index.php
+1000 clients, running 10 sec.
+
+Speed=135876 pages/min, 726669 bytes/sec.
+Requests: 22646 susceed, 0 failed.
+dexter-laptop O1ADsite # webbench -t 10 -c 1000 http://127.0.0.1:81/index.lsp
+Webbench - Simple Web Benchmark 1.5
+Copyright (c) Radim Kolar 1997-2004, GPL Open Source Software.
+
+Benchmarking: GET http://127.0.0.1:81/index.lsp
+1000 clients, running 10 sec.
+
+Speed=204822 pages/min, 463365 bytes/sec.
+Requests: 34071 susceed, 66 failed.
+dexter-laptop O1ADsite # 
 
