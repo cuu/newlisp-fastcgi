@@ -49,8 +49,8 @@
 )
 ;;;;------------------------------------------------- INIT 
 (set 'mem (share))
-(set 'sid (semaphore))
-(semaphore sid)
+;(set 'sid (semaphore))
+;(semaphore sid)
 (share mem true)
 
 
@@ -68,12 +68,12 @@
 (set 'headers "Content-type: text/html\r\n\r\n")
 
 (define (fcgi_ret) 
-	(semaphore sid -1) ;; wait at the first of forking
+;	(semaphore sid -1) ;; wait at the first of forking
 	(while (setq server (net-accept socket))
 ;		(while (not (net-select socket "read" 2000))
 ;			(if (net-error) (print (net-error))))
 
-		(if (not (net-select server "read" 30000))
+		(if (not (net-select server "read" 10000))
 			(begin 
 				(if (net-error) (print (net-error)))
 				(setq content "net-select server read error" )
@@ -127,5 +127,5 @@
 
 ;; master start all process to work
 (if (= (getpid) 0)
-	(semaphore sid (+ 1 children_num))
+;	(semaphore sid (+ 1 children_num))
 )
