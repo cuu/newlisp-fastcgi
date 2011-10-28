@@ -79,7 +79,7 @@
 				(setq content "net-select server read error" )
 			)
 			(begin 
-				(net-receive server buffer 8192) 
+				(net-receive server buffer 2048) ;; fastcgi headers more or less 1024 bytes 
 				(replace "\000" buffer "\001")
 		
 				(setq res_len (length buffer))
