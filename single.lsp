@@ -129,50 +129,52 @@
 							(setq vcontent (slice content st (- src st)))
 							(set 'totallen (length vcontent))
 
-			                                (set 'len_str (format "%x" totallen))
-                        			        (if (> (length len_str) 2)
-                                        			(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
-                                			)   
-                               	 			(if (<= (length len_str) 2)
-                                        			(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
-                                			)					
+							(set 'len_str (format "%x" totallen))
+                                (if (> (length len_str) 2)
+                           			(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
+                         		)   
+                            	(if (<= (length len_str) 2)
+                                	(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
+                              	)					
 							
 
-                                			(set 'output (append fcgi_header  vcontent fcgi_footer))
-                                			;(println "\n" (getpid) )
-                                			(if (not (net-select server "w" 500))
-                                			(begin
-								(if (net-error) (print (net-error)))
-                                        			(net-close server))
-                                			(begin
-                                        			(net-send server output)
-                                        			(net-close server))
-                                			)
+                                (set 'output (append fcgi_header  vcontent fcgi_footer))
+                                ;(println "\n" (getpid) )
+                                (if (not (net-select server "w" 500))
+                                	(begin
+										(if (net-error) (print (net-error)))
+                                       	(net-close server))
+                               		(begin
+                                   			(net-send server output)
+                                   			(net-close server))
+                               		)
 							(setq jug nil);means quit while
 						)
 						(begin
 
 							(setq vcontent (slice content st jump))
-							(set 'totallen (length vcontent))
-
-			                                (set 'len_str (format "%x" totallen))
-                        			        (if (> (length len_str) 2)
-                                        			(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
-                                			)   
-                               	 			(if (<= (length len_str) 2)
-                                        			(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
-                                			)
 							(if (!= 0 st)
-                                				(set 'output (append fcgi_header  vcontent fcgi_footer))
-								(set 'output (append fcgi_header  html_headers vcontent fcgi_footer))
+								(set 'totallen (length vcontent))
+								(set 'totallen (+ (length vcontent) (length html_headers)))
+							)
+			                (set 'len_str (format "%x" totallen))
+                        	(if (> (length len_str) 2)
+                           		(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
+                           	)   
+                            (if (<= (length len_str) 2)
+                            	(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
+                            )
+							(if (!= 0 st)
+                                (set 'output (append fcgi_header  vcontent))
+								(set 'output (append fcgi_header  html_headers vcontent))
 							)
                                 			;(println "\n" (getpid) )
-                                			(if (not (net-select server "w" 500))
-                                			(begin
-								(if (net-error) (print (net-error))))
-                                			(begin
-                                        			(net-send server output))
-                                			)
+                            (if (not (net-select server "w" 500))
+                            	(begin
+									(if (net-error) (print (net-error))))
+                                (begin
+                                	(net-send server output))
+                            )
 
 							(setq st (+ st jump))
 						)
