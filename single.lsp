@@ -130,28 +130,26 @@
 							(set 'totallen (length vcontent))
 
 							(set 'len_str (format "%x" totallen))
-                                (if (> (length len_str) 2)
-                           			(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
-                         		)   
-                            	(if (<= (length len_str) 2)
-                                	(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
-                              	)					
+							(if (> (length len_str) 2)
+								(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
+							)   
+							(if (<= (length len_str) 2)
+								(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
+							)					
 							
-
-                                (set 'output (append fcgi_header  vcontent fcgi_footer))
+							(set 'output (append fcgi_header  vcontent fcgi_footer))
                                 ;(println "\n" (getpid) )
-                                (if (not (net-select server "w" 500))
-                                	(begin
-										(if (net-error) (print (net-error)))
-                                       	(net-close server))
-                               		(begin
-                                   			(net-send server output)
-                                   			(net-close server))
-                               		)
+							(if (not (net-select server "w" 500))
+								(begin
+									(if (net-error) (print (net-error)))
+									(net-close server))
+								(begin
+									(net-send server output)
+									(net-close server))
+							)
 							(setq jug nil);means quit while
 						)
 						(begin
-
 							(setq vcontent (slice content st jump))
 							(if (!= 0 st)
 								(set 'totallen (length vcontent))
