@@ -112,7 +112,7 @@
 
 				(set 'output (append fcgi_header html_headers content fcgi_footer))
 				;(println "\n" (getpid) )
-				(if (not (net-select server "w" 500))
+				(if (not (net-select server "w" 1000))
 				(begin
 					(net-close server))
 				(begin
@@ -139,7 +139,7 @@
 							
 							(set 'output (append fcgi_header  vcontent fcgi_footer))
                                 ;(println "\n" (getpid) )
-							(if (not (net-select server "w" 500))
+							(if (not (net-select server "w" 1000))
 								(begin
 									(if (net-error) (print (net-error)))
 									(net-close server))
@@ -167,7 +167,7 @@
 								(set 'output (append fcgi_header  html_headers vcontent))
 							)
                                 			;(println "\n" (getpid) )
-                            (if (not (net-select server "w" 500))
+                            (if (not (net-select server "w" 1000))
                             	(begin
 									(if (net-error) (print (net-error))))
                                 (begin
