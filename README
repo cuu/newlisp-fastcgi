@@ -31,6 +31,6 @@ Benchmarking: GET http://127.0.0.1:81/index.lsp
 1000 clients, running 10 sec.
 
 Speed=204822 pages/min, 463365 bytes/sec.
-Requests: 34071 susceed, 66 failed.
+Requests: 34071 susceed, 0 failed.
 dexter-laptop O1ADsite # 
 
