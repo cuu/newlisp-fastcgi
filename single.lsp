@@ -54,7 +54,7 @@
 (setq st 0)
 
 
-(set 'port 9001)
+(set 'port 9000)
 (setq children_num 2)
 
 (set 'socket (net-listen port))
