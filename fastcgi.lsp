@@ -49,29 +49,25 @@
 )
 ;;;;------------------------------------------------- INIT 
 (set 'mem (share))
-;(set 'sid (semaphore))
-;(semaphore sid)
 (share mem true)
+(setq jump 64512)
+(setq st 0)
 
 
 (set 'port 9000)
-(setq children_num 2)
+(setq children_num 10)
 
 (set 'socket (net-listen port))
-(if (nil? socket) (exit))
+(if (nil? socket) (begin (print (net-error)) (exit)))
 (sleep 2500)
 (setq lookstr "SCRIPT_FILENAME")
-(setq (global 'y) 0)
-
+;(setq (global 'y) 0)
 (set 'fcgi_footer (pack "c c c c c c c c c c c c c c c c c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 0x00 0x00 0x00 0x01 0x03 0x00 0x01 0x00 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00))
 
-(set 'headers "Content-type: text/html\r\n\r\n")
+(set 'html_headers "Content-type: text/html\r\n\r\n")
 
 (define (fcgi_ret) 
-;	(semaphore sid -1) ;; wait at the first of forking
 	(while (setq server (net-accept socket))
-;		(while (not (net-select socket "read" 2000))
-;			(if (net-error) (print (net-error))))
 
 		(if (not (net-select server "read" 10000))
 			(begin 
@@ -79,41 +75,107 @@
 				(setq content "net-select server read error" )
 			)
 			(begin 
-				(net-receive server buffer 2048) ;; fastcgi headers more or less 1024 bytes 
+				(net-receive server buffer 4096) ;; fastcgi headers more or less 1024 bytes 
+				(setq y 0)
 				(replace "\000" buffer "\001")
-		
 				(setq res_len (length buffer))
-				(setq find_start (+ (find lookstr buffer) (length lookstr)) )
-				(for (x find_start res_len 1 (= 12 (char (nth x buffer))) ) (begin (setq y x)) )
-
-				(setq lsp_file (slice buffer find_start (+ 1 (- y find_start))) )
-	
+				(setq find_start (+ (find lookstr buffer) (- (length lookstr) 0)) )
+				(setq y (find (pack "c 4s" 0x0c "QUER") buffer))
+				(if (nil? y) (setq y 0))
+				(setq lsp_file (slice buffer find_start (+ 0 (- y find_start))) )
+					
 				(if (file? lsp_file)
 					(setq content  (eval-page lsp_file))
-					(setq content  " File not found")
+					(setq content  (string  lsp_file "not found " y))
 				)
 			)
 		)
 		;; process lsp to  html
-	
-		(set 'totallen (length (string headers content) ))
-		(set 'len_str (format "%x" totallen))
-		(if (> (length len_str) 2)
-			(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
-		)
-		(if (<= (length len_str) 2)
-			(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00 0x00))
-		)
+		(setq src (length content))
+		(if (or  (< src jump ) (= src jump) ) ; if the lsp file is smaller than 64512 send once
+			(begin
+				(set 'totallen (length (string html_headers content) ))
+		
+				(set 'len_str (format "%x" totallen))
+				(if (> (length len_str) 2)
+					(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
+				)
+				(if (<= (length len_str) 2)
+					(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00 0x00))
+				)
 
-		(set 'output (append fcgi_header headers content fcgi_footer))
-		;(println "\n" (getpid) )
-		(if (not (net-select server "w" 500))
-			(begin
-				(net-close server))
-			(begin
-				(net-send server output)
-				(net-close server))
-		)
+				(set 'output (append fcgi_header html_headers content fcgi_footer))
+				;(println "\n" (getpid) )
+				;(if (not (net-select server "w" 1000))
+				;(begin
+				;	(net-close server))
+				;(begin
+					(net-send server output)
+					(net-close server)
+				;)
+				;)
+			)
+			(begin ;; bigg than jump (64512) ,send multi times  
+				(setq jug true)
+				(setq st 0)
+				(while (true? jug)
+					(if (or (< (- src st) jump ) (= (- src st) jump))
+						(begin
+							(setq vcontent (slice content st (- src st)))
+							(set 'totallen (length vcontent))
+
+							(set 'len_str (format "%x" totallen))
+							(if (> (length len_str) 2)
+								(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
+							)   
+							(if (<= (length len_str) 2)
+								(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
+							)					
+							
+							(set 'output (append fcgi_header  vcontent fcgi_footer))
+                                ;(println "\n" (getpid) )
+							;(if (not (net-select server "w" 1000))
+						;		(begin
+						;			(if (net-error) (print (net-error)))
+	;								(net-close server))
+	;							(begin
+									(net-send server output)
+									(net-close server);)
+							;)
+							(setq jug nil);means quit while
+						)
+						(begin
+							(setq vcontent (slice content st jump))
+							(if (!= 0 st)
+								(set 'totallen (length vcontent))
+								(set 'totallen (+ (length vcontent) (length html_headers)))
+							)
+			                (set 'len_str (format "%x" totallen))
+                        	(if (> (length len_str) 2)
+                           		(set 'fcgi_header (pack "c c c c >d c c"  0x01 0x06 0x00 0x01 totallen 0x00 0x00))
+                           	)   
+                            (if (<= (length len_str) 2)
+                            	(set 'fcgi_header (pack "c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 totallen 0x00     0x00))
+                            )
+							(if (!= 0 st)
+                                (set 'output (append fcgi_header  vcontent))
+								(set 'output (append fcgi_header  html_headers vcontent))
+							)
+                                			;(println "\n" (getpid) )
+                            ;(if (not (net-select server "w" 1000))
+                            ;	(begin
+							;		(if (net-error) (print (net-error))))
+                             ;   (begin
+                                	(net-send server output);)
+                            ;)
+
+							(setq st (+ st jump))
+						)
+					);end if or < - src st jmp = ....
+				);end while true? jug	
+			)
+		); end if < src jump
+
 	); end while setq server net-accept socket
 ); end fcgi_ret
 
@@ -127,5 +189,5 @@
 
 ;; master start all process to work
 (if (= (getpid) 0)
-;	(semaphore sid (+ 1 children_num))
+;	(fcgi_ret)
 )
