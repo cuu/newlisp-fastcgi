@@ -189,5 +189,5 @@
 
 ;; master start all process to work
 (if (= (getpid) 0)
-;	(fcgi_ret)
+	(fcgi_ret)
 )
