@@ -186,7 +186,18 @@
 	;(sleep 1000)
 )
 
-;; master start all process to work
+;; master monitor all process to work
 (if (= (getpid) 0)
-	(fcgi_ret)
+	(while true
+		(if (= ostype "Linux")
+			(begin
+				(for (x 0 (- children_num 1))
+					(if (not (directory? (string "/proc/" (nth x pidarray))))
+						(setq (nth x pidarray) (fork (fcgi_ret)))
+					)
+				)
+			)
+		)
+		(sleep 100000)
+	)
 )
