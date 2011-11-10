@@ -1,61 +1,37 @@
 ;newlisp fastcgi support [dexterkidd#me.com]
-(define (getpid) (sys-info 6))
+(define (getpid) (sys-info 7))
+(define (getparent_id) (sys-info 6))
 
-(define (put-str str , page start end)
-    (set 'page str)
+(define (put-page file-name , page start end)
+    (set 'page (read-file file-name))
     (set 'start (find "<%" page))
     (set 'end (find "%>" page))
-	(setq ret "")
     (while (and start end)
-	(setq ret (append ret (slice page 0 start)))
-	(setq lsp_body (slice page (+ start 2) (- end start 2)))
-	(setq $0 0)
-
-;	(catch (read-expr lsp_body MAIN () $0) 'get-expr)
-	(catch (read-expr lsp_body MAIN () $0) 'get-expr)
-	(do-while (and (nil? (find "ERR:" get-expr)) (not (nil?  get-expr)))
-		(if (true? (find "ERR:"  get-expr))
-			(begin
-			(setq ret (append ret (string get-expr)))
-			)
-			(begin
-				(catch (eval-string  (string get-expr)) 'err-ret)
-				(if-not (nil? err-ret)
-					(setq ret  (append ret (string err-ret)))
-					(if-not (nil? (sys-error))
-						(setq ret  (append ret (string (sys-error)))))
-				)
-			)
-		)   
-		;(setq get-expr  (read-expr lsp_body MAIN () $0))
-		(catch (read-expr lsp_body MAIN () $0) 'get-expr)
-		(if (true? (find "ERR:"  get-expr))
-			(setq ret (append ret (string get-expr)))
-		)
-	);;ends of do-while
+        (print (slice page 0 start))
+		
+       	(eval-string (slice page (+ start 2) (- end start 2)) MAIN (print (last-error)))
+		;(if-not (nil? err-ret)   (print (string err-ret)))
 
         (set 'page (slice page (+ end 2)))
         (set 'start (find "<%" page))
         (set 'end (find "%>" page)))
-
-	(setq ret (append ret page))
-	ret
-)
+    (print page))
 
 
-(define (eval-page file-name , page start end)
-	(set 'page (read-file file-name))
-		(put-str page)
+(define (set_env lookstr nextstr  buf)
+
+	(setq find_start (+ (find lookstr buf) (length lookstr) ) )
+	(setq y (- (find nextstr buf)  2))
+
+	(if (or (nil? y) (< y 0))
+			 (setq y 0)) 
+	(env lookstr  (slice buf find_start (- y find_start)) )
+	; env ddoes not show the nil env value
 )
 ;;;;------------------------------------------------- INIT 
-(set 'mem (share))
-(share mem true)
-(setq jump 64512)
-(setq st 0)
-
-
-(set 'port 9000)
-(setq children_num 2)
+;(set 'mem (share))
+;(share mem true)
+(load "config.lsp")
 
 (set 'socket (net-listen port))
 (if (nil? socket) (begin (print (net-error)) (exit)))
@@ -64,7 +40,8 @@
 ;(setq (global 'y) 0)
 (set 'fcgi_footer (pack "c c c c c c c c c c c c c c c c c c c c c c c c"  0x01 0x06 0x00 0x01 0x00 0x00 0x00 0x00 0x01 0x03 0x00 0x01 0x00 0x08 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00))
 
-(set 'html_headers "Content-type: text/html\r\n\r\n")
+;(set 'html_headers "Content-type: text/html\r\n\r\n")
+(set 'html_headers "")
 
 (define (fcgi_ret) 
 	(while (setq server (net-accept socket))
@@ -80,14 +57,36 @@
 				(replace "\000" buffer "\001")
 				(setq res_len (length buffer))
 				(setq find_start (+ (find lookstr buffer) (- (length lookstr) 0)) )
-				(setq y (find (pack "c 4s" 0x0c "QUER") buffer))
+				(setq y (find (pack "c 4s" 0x0c  "QUER") buffer))
 				(if (nil? y) (setq y 0))
 				(setq lsp_file (slice buffer find_start (+ 0 (- y find_start))) )
 					
 				(if (file? lsp_file)
-					(setq content  (eval-page lsp_file))
-					(setq content  (string  lsp_file "not found " y))
-				)
+					(begin
+						
+						(set_env "QUERY_STRING" "REQUEST_METHOD"  buffer)
+						(set_env "REQUEST_METHOD" "CONTENT_TYPE"  buffer)
+						(set_env "CONTENT_TYPE" "CONTENT_LENGTH"  buffer)
+						(set_env "CONTENT_LENGTH" "SCRIPT_NAME"  buffer)
+						
+						(set_env "SERVER_ADDR" "SERVER_PORT" buffer)
+						(set_env "SERVER_NAME" "REDIRECT_STATUS" buffer)	
+
+                		(setq content "")
+						(setq tmp_file (string tmp_dir "/" (getpid) ".newlisp")) 
+		                (device (open  tmp_file "w"))
+        	    	        (put-page lsp_file)
+	            	    (close (device))
+                    	
+						(setq content (read-file tmp_file))
+	   		            ;(while (not (nil?  (setq reads (read-buffer in buff 65535))))
+						;	(setq content (append content buff))
+            			;)   
+					)
+					(begin
+						(setq content  (string  lsp_file "not found " y))
+					)
+				)	
 			)
 		)
 		;; process lsp to  html
@@ -188,6 +187,6 @@
 ;)
 
 ;; master start all process to work
-(if (= (getpid) 0)
+(if (= (getparent_id) 0)
 	(fcgi_ret)
 )
