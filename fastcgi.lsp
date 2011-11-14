@@ -1,51 +1,48 @@
 ;newlisp fastcgi support [dexterkidd#me.com]
+; This version does not include web.lsp
+; newlisp fastcgi.lsp || killall newlisp
+; set children_num to your  WORKERS NUMBER
+; set port to your prefer PORT
+; If there is some bugs,Dont let me know 
+; LOL 
+;
+
+
 (define (getpid) (sys-info 6))
+(setq content "")
 
-(define (put-str str , page start end)
-    (set 'page str)
-    (set 'start (find "<%" page))
-    (set 'end (find "%>" page))
-	(setq ret "")
-    (while (and start end)
-	(setq ret (append ret (slice page 0 start)))
-	(setq lsp_body (slice page (+ start 2) (- end start 2)))
-	(setq $0 0)
-
-;	(catch (read-expr lsp_body MAIN () $0) 'get-expr)
-	(catch (read-expr lsp_body MAIN () $0) 'get-expr)
-	(do-while (and (nil? (find "ERR:" get-expr)) (not (nil?  get-expr)))
-		(if (true? (find "ERR:"  get-expr))
-			(begin
-			(setq ret (append ret (string get-expr)))
-			)
-			(begin
-				(catch (eval-string  (string get-expr)) 'err-ret)
-				(if-not (nil? err-ret)
-					(setq ret  (append ret (string err-ret)))
-;					(if-not (nil? (sys-error)) (setq ret  (append ret (string (sys-error)))))
-				)
-			)
-		)   
-		;(setq get-expr  (read-expr lsp_body MAIN () $0))
-		(catch (read-expr lsp_body MAIN () $0) 'get-expr)
-		(if (true? (find "ERR:"  get-expr))
-			(setq ret (append ret (string get-expr)))
-		)
-	);;ends of do-while
-
-        (set 'page (slice page (+ end 2)))
-        (set 'start (find "<%" page))
-        (set 'end (find "%>" page)))
-
-	(setq ret (append ret page))
-	ret
+(define (fcgi_print)
+	(setq arg "")
+	(dolist (x (args))
+       (setq arg (append arg (string x)))
+	)
+	(setq content (append content arg))
 )
 
+(constant 'print fcgi_print)
 
-(define (eval-page file-name , page start end)
+(define (set_env lookstr nextstr  buf)
+	(setq find_start (+ (find lookstr buf) (length lookstr) ) )
+	(setq y (- (find nextstr buf)  2))
+	(if (or (nil? y) (< y 0))
+		(setq y 0)) 
+	(env lookstr  (slice buf find_start (- y find_start)) )
+	; env ddoes not show the nil env value
+)
+
+(define (put-page file-name , page start end)
 	(set 'page (read-file file-name))
-		(put-str page)
-)
+	(set 'start (find "<%" page))
+	(set 'end (find "%>" page))
+	(while (and start end)
+		(print (slice page 0 start))
+		(eval-string (slice page (+ start 2) (- end start 2)) MAIN (print (last-error)))
+		;(if-not (nil? err-ret)   (print (string err-ret)))
+		(set 'page (slice page (+ end 2)))
+		(set 'start (find "<%" page))
+		(set 'end (find "%>" page)))
+	(print page))
+
 ;;;;------------------------------------------------- INIT 
 (set 'mem (share))
 (share mem true)
@@ -54,7 +51,7 @@
 
 
 (set 'port 9000)
-(setq children_num 10)
+(setq children_num 2)
 
 (set 'socket (net-listen port))
 (if (nil? socket) (begin (print (net-error)) (exit)))
@@ -67,12 +64,11 @@
 (set 'html_headers "")
 
 (define (fcgi_ret) 
-	(while (setq server (net-accept socket))
-
+	(while (setq server (net-accept socket))	
 		(if (not (net-select server "read" 10000))
 			(begin 
 				(if (net-error) (print (net-error)))
-				(setq content "net-select server read error" )
+				(print "net-select server read error" )
 			)
 			(begin 
 				(net-receive server buffer 4096) ;; fastcgi headers more or less 1024 bytes 
@@ -85,8 +81,20 @@
 				(setq lsp_file (slice buffer find_start (+ 0 (- y find_start))) )
 					
 				(if (file? lsp_file)
-					(setq content  (eval-page lsp_file))
-					(setq content  (string  lsp_file "not found " y))
+					(begin
+					(set_env "QUERY_STRING" "REQUEST_METHOD"  buffer)
+					(set_env "REQUEST_METHOD" "CONTENT_TYPE"  buffer)
+					(set_env "CONTENT_TYPE" "CONTENT_LENGTH"  buffer)
+					(set_env "CONTENT_LENGTH" "SCRIPT_NAME"  buffer)
+
+					(set_env "SERVER_ADDR" "SERVER_PORT" buffer)
+					(set_env "SERVER_NAME" "REDIRECT_STATUS" buffer) 
+
+					(put-page lsp_file)	
+					)
+					(begin
+						(print  lsp_file "not found " y)
+					)
 				)
 			)
 		)
@@ -175,7 +183,7 @@
 				);end while true? jug	
 			)
 		); end if < src jump
-
+	(setq content "")
 	); end while setq server net-accept socket
 ); end fcgi_ret
 
