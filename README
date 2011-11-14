@@ -34,3 +34,17 @@ Speed=204822 pages/min, 463365 bytes/sec.
 Requests: 34071 susceed, 0 failed.
 dexter-laptop O1ADsite # 
 
+2011-11-14 11:16AM
+What I was doing is not right
+Thanks to the sunmountain from newlisp bbs
+you helped me a lot.
+also thansk to lutz,the creator of newlisp, I cost you so much time,lol
+
+as far as now
+I imported libfcgi to get it work
+single process verion ,I need more tests to decide the multi process version
+
+Now I am running it with spawn-fcgi
+#spawn-fcgi -p 9000 -f /tmp/fcgi.lsp
+In a month,today is my lucky day.
+
