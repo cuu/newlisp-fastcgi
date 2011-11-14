@@ -1,6 +1,6 @@
 #!/usr/bin/newlisp
 ; single version
-(module "web.lsp"); well,you can load it or put it into modules dir
+(load "web.lsp"); well,you can load it or put it into modules dir
 (import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_Accept")
 (import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_puts")
 (import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_printf")

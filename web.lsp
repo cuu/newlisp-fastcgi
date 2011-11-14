@@ -634,7 +634,9 @@
       (when (and start (not end)) (throw-error "Unbalanced tags."))))
   
   (write-buffer buf (string "(print [text]" str "[/text])"))
-  (eval-string buf ctx))
+  ;(eval-string buf ctx (print (string (last-error))) )
+	(eval-string buf ctx (print (replace "\n" (string (last-error)) "<br />") ))
+)
 
 ;===============================================================================
 ; !Module initialization
@@ -713,7 +715,8 @@
 (define (exit-with-session-close (n 0))
   (when (zero? n)
     (Web:close-session))
-  (MAIN:sys-exit))
+;  (MAIN:sys-exit)
+)
 
 (constant 'sys-exit exit)
 (constant 'exit exit-with-session-close)
