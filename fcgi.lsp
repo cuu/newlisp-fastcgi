@@ -35,10 +35,25 @@
         (set 'start (find "<%" page))
         (set 'end (find "%>" page)))
     (print page))
+
+
+(define (find_dir str)
+    (setq pos 0)
+    (setq pos1 0)
+    (while (setq pos (find "/" str 0 pos1))
+        (setq pos1 (+ pos 1)) 
+    )   
+;   (println pos pos1)
+	(slice str 0  pos1)
+)
+
 ;---------------------------------------------------------------------------
 (while (>= (FCGI_Accept) 0)
 	(setq src_file (env "SCRIPT_FILENAME"))
+		
 	(if (file? src_file)
+	(change-dir (find_dir (append (env "DOCUMENT_ROOT") (env                "DOCUMENT_URI"))) )
+
 		(put-page src_file)
 		(print "Not Found!")
 	)
