@@ -3,7 +3,9 @@ NEWLISP FastCGI port
 
 Installation
 -----------
-1.debian system
+
+###	debian system.
+
 	apt-get install libfcgi-dev & spawn-fcgi.
 		
 	then download fcgi.lsp to anywhere
