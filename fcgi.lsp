@@ -1,8 +1,7 @@
 #!/usr/bin/newlisp
 ; single version
-(import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_Accept")
-(import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_puts")
-(import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_printf")
+(load "import.lsp")
+
 (define (fcgi_print)
     (setq arg "")
     (dolist (x (args))
@@ -22,6 +21,14 @@
 
 (constant 'print fcgi_print)
 (constant 'println fcgi_println)
+
+(define (fcgi_exit)
+	(if-not (nil? (last-error))
+		(print (last-error)))
+	(if-not (nil? (sys-error))
+		(print (sys-error)))
+)
+(constant 'exit fcgi_exit)
 
 (define (put-page file-name , page start end)
     (set 'page (read-file file-name))
@@ -55,7 +62,7 @@
 ;	(change-dir (find_dir (append (env "DOCUMENT_ROOT") (env                "DOCUMENT_URI"))) )
 
 		(put-page src_file)
-		(print "Not Found!")
+		(print src_file " Not Found!")
 	)
 )
 (exit 0)  
