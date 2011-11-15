@@ -51,7 +51,7 @@
 
 
 (set 'port 9000)
-(setq children_num 2)
+(setq children_num 10)
 
 (set 'socket (net-listen port))
 (if (nil? socket) (begin (print (net-error)) (exit)))
