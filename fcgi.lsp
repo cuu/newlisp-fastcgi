@@ -52,7 +52,7 @@
 	(setq src_file (env "SCRIPT_FILENAME"))
 		
 	(if (file? src_file)
-	(change-dir (find_dir (append (env "DOCUMENT_ROOT") (env                "DOCUMENT_URI"))) )
+;	(change-dir (find_dir (append (env "DOCUMENT_ROOT") (env                "DOCUMENT_URI"))) )
 
 		(put-page src_file)
 		(print "Not Found!")
