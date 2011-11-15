@@ -2,6 +2,14 @@
 ; single version
 (load "import.lsp")
 
+(define (fcgi_module m)
+	(if
+		(= ostype "Linux") (load (string "/usr/share/newlisp/modules/" m))
+	)
+
+)
+(constant 'module fcgi_module)
+
 (define (fcgi_print)
     (setq arg "")
     (dolist (x (args))
