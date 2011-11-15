@@ -3,5 +3,7 @@ NEWLISP FastCGI port
 #spawn-fcgi -p 9000 -f /tmp/fcgi.lsp
 The port is 9000
 Not finished yet,only a test version now
-Have been tested under nginx/lighttpd
+Have been tested under nginx/lighttpd ON LINUX 32 
+
+Work with CGI newlisp code
 
