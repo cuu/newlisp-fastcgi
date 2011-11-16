@@ -2,13 +2,17 @@
 ; single version
 (load "import.lsp")
 (define (fcgi_print)
-    (setq arg "")
+	(setq arg "")
     (dolist (x (args))
-       (setq arg (append arg (string x)))
+		(setq arg (append arg (string x)))
     )
-;	(FCGI_printf arg)
+
+;	(FCGI_vprintf arg)
 ;	(setq arg (append arg "\r\n"))
-	(FCGI_puts arg)
+;	(FCGI_puts arg)
+	(for (x 0  (- (length arg) 1) )
+		(FCGI_putchar (char (nth x arg)))
+	)
 )
 
 (define (fcgi_println)
@@ -17,9 +21,12 @@
        (setq arg (append arg (string x)))
     )
 	(setq arg (append arg "\n")) ; NEW LINE FEED	
-;	(FCGI_printf arg)
+;	(FCGI_vprintf arg)
 ;	(setq arg (append arg "\r\n"))
-	(FCGI_puts arg)
+;	(FCGI_puts arg)
+    (for (x 0  (- (length arg) 1) )
+        (FCGI_putchar (char (nth x arg)))
+    )
 
 )
 
@@ -87,7 +94,9 @@
     (set 'start (find "<%" page))
     (set 'end (find "%>" page))
     (while (and start end)
-        (print (slice page 0 start))
+;		(if (!= start 0)
+	        (print (slice page 0 start))
+;		)
         (eval-string (slice page (+ start 2) (- end start 2)) MAIN (print   (last-error)))
         ;(if-not (nil? err-ret)   (print (string err-ret)))
         (set 'page (slice page (+ end 2)))
