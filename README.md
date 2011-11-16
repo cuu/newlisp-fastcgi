@@ -27,3 +27,10 @@ Have been tested under nginx/lighttpd ON LINUX 32 .
 
 Work with CGI newlisp code.
 
+Disable function list:
+-----
+
+	Processes and the Cilk API
+	Socket TCP/IP and UDP network API 
+	Reflection and customization 
+	newLISP internals API
