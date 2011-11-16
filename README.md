@@ -11,7 +11,10 @@ Installation
 	then download fcgi.lsp to anywhere
 	
 	(or (chmod +x fcgi.lsp) (chmod 755 fcgi.lsp))
+	
+	TURN OFF UTF8 SUPPORT when compling newlisp
 
+	delete this -DSUPPORT_UTF8 flag in your makefile
 
 usage:
 -----

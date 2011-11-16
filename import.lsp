@@ -6,4 +6,4 @@
 
 (import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_putchar")
 
-
+(import "libc.so.6" "strlen")
