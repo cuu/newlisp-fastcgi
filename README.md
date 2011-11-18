@@ -20,7 +20,10 @@ usage:
 -----
 
 	spawn-fcgi -p 9000 -f /tmp/fcgi.lsp -U www-data -G www-data -F 10
-
+	Write down preload modules in modules.lsp
+	If import C libs , check it out in import.lsp
+	I am not recommand (import) or (module) in website's lsp files
+	Also, it's not a best choice to try use newlisp only in your project.
 
 =============
 
@@ -37,3 +40,13 @@ Disable function list:
 	Socket TCP/IP and UDP network API 
 	Reflection and customization 
 	newLISP internals API
+
+
+END
+-----
+
+I think newlisp can be a great connector for all  languages ,c php,etc
+Not just use it for only 
+So that
+It can help me to develop faster than ever.
+

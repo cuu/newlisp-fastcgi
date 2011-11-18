@@ -35,11 +35,14 @@
 
 (define (fcgi_module m)
     (if 
-        (= ostype "Linux") (load (string "/usr/share/newlisp/modules/" m)) 
-    )   
+        (= ostype "Linux") (setq mod (string "/usr/share/newlisp/modules/" m)) 
+    )
 
+	(load mod)	
 )
 (constant 'module fcgi_module)
+
+(load "modules.lsp"); preload modules
 
 (define (fcgi_exit)
 	(if-not (nil? (last-error))
