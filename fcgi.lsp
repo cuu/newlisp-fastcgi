@@ -1,5 +1,19 @@
 #!/usr/bin/newlisp
 ; single version
+(define (find_dir str)
+    (setq pos 0)
+    (setq pos1 0)
+    (while (setq pos (find "/" str 0 pos1))
+        (setq pos1 (+ pos 1)) 
+    )   
+;   (println pos pos1)
+    (slice str 0  pos1)
+)
+
+(if (> (length (main-args)) 1)
+	(change-dir (find_dir (real-path (main-args 1))))
+)
+
 (load "import.lsp")
 (define (fcgi_print)
 	(setq arg "")
@@ -34,11 +48,12 @@
 
 
 (define (fcgi_module m)
+	
     (if 
-        (= ostype "Linux") (setq mod (string "/usr/share/newlisp/modules/" m)) 
+        (= ostype "Linux") (setq mod_f (string "/usr/share/newlisp/modules/" m)) 
     )
 
-	(load mod)	
+	(load mod_f)	
 )
 (constant 'module fcgi_module)
 
@@ -107,15 +122,6 @@
     (print page))
 
 
-(define (find_dir str)
-    (setq pos 0)
-    (setq pos1 0)
-    (while (setq pos (find "/" str 0 pos1))
-        (setq pos1 (+ pos 1)) 
-    )   
-;   (println pos pos1)
-	(slice str 0  pos1)
-)
 
 ;---------------------------------------------------------------------------
 (while (>= (FCGI_Accept) 0)

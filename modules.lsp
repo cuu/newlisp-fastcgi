@@ -3,3 +3,6 @@
 (module "cgi.lsp")
 (module "postgres.lsp")
 (module "json.lsp")
+
+(module "mysql.lsp")
+

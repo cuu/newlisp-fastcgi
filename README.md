@@ -41,6 +41,14 @@ Disable function list:
 	Reflection and customization 
 	newLISP internals API
 
+NORMAL ERROR ISSUES
+-----
+	when load some modules ,it is actually import some C .so to work
+	so check if there is the right .so file on computer
+	Like postgre.lsp need libpq.so.5.1,but today libpq is .so.5.2 
+	so need edition by hand.
+	It it easy if rung ./fcgi.lsp first, it'll show errors 
+		
 
 END
 -----

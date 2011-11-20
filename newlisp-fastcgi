@@ -1,0 +1,33 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          newlisp-fastcgi
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start daemon at boot time
+# Description:       Enable newlisp fastcgi on port 9000
+### END INIT INFO
+
+case "$1" in
+  start)
+        echo -n "Starting newlisp fastcgi on port 9000 "
+		cd /root/working/newlisp-fastcgi
+		spawn-fcgi -a 127.0.0.1 -p 9000  -f /root/working/newlisp-fastcgi/fcgi.lsp	
+
+        ;;
+  stop)
+        echo -n "KILLALL newlisp fcgi"
+		killall fcgi.lsp
+        echo "."
+        ;;
+
+  *)
+        echo "Usage: /sbin/service newlisp-fastcgi {start|stop}"
+        exit 1
+esac
+
+exit 0
+
+
