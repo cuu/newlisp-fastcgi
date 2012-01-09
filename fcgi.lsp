@@ -21,10 +21,11 @@
 		(setq arg (append arg (string y)))
     )
 
-;	(FCGI_vprintf arg)
-	(for (x 0 (- (length arg) 1)) 
-		(FCGI_putchar (char (arg x)))  ;; TURN OFF UTF8 OR CRASH 
-	)
+	(FCGI_guuprintf  arg)
+
+;	(for (x 0 (- (length arg) 1)) 
+;		(FCGI_putchar (char (arg x)))  ;; TURN OFF UTF8 OR CRASH 
+;	)
 
 )
 
@@ -37,9 +38,7 @@
 ;	(FCGI_vprintf arg)
 ;	(setq arg (append arg "\r\n"))
 ;	(FCGI_puts arg)
-    (for (x 0  (- (length arg) 1) )
-        (FCGI_putchar (char (nth x arg)))
-    )
+	(FCGI_guuprintf arg)	
 
 )
 
@@ -51,6 +50,8 @@
 	
     (if 
         (= ostype "Linux") (setq mod_f (string "/usr/share/newlisp/modules/" m)) 
+		(= ostype "OSX"  ) (setq mod_f (string "/usr/share/newlisp/modules/" m))
+		;;and windows by yourself
     )
 
 	(load mod_f)	
@@ -121,18 +122,29 @@
         (set 'end (find "%>" page)))
     (print page))
 
+(define (fcgi_load  file-name)
+		(put-page file-name)
+)
 
+(constant 'load fcgi_load)
+
+(define (content-type)
+	(print "Content-type: text/html\r\n\r\n")
+)
 
 ;---------------------------------------------------------------------------
 (while (>= (FCGI_Accept) 0)
 	(setq src_file (env "SCRIPT_FILENAME"))
 		
 	(if (file? src_file)
-;	(change-dir (find_dir (append (env "DOCUMENT_ROOT") (env                "DOCUMENT_URI"))) )
-
+	(begin		
+		(change-dir (find_dir src_file))
+		(content-type)	
 		(put-page src_file)
+	)
 ;		(eval-template (read-file src_file))
 		(print src_file " Not Found!")
+	
 	)
 )
 (exit 0)  

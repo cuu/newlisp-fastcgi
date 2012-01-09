@@ -1,15 +1,11 @@
-<%
-;	(module "web.lsp")
-	(Web:send-headers)
-%>
 <html>
 <head>
-<title><% (print "Title damn it") %> </title>
+<title><% (print "Newlisp fastcgi ") %> </title>
 </head>
 <body>
 <%
-(print (string "It works newlisp " (date) "<br />"))
-(print (string (sys-info) ) )
+(print "It works newlisp " (date) "<br />")
+(print (sys-info)  )
 
 %>
 <form action="#">

@@ -48,8 +48,36 @@ NORMAL ERROR ISSUES
 	Like postgre.lsp need libpq.so.5.1,but today libpq is .so.5.2 
 	so need edition by hand.
 	It it easy if rung ./fcgi.lsp first, it'll show errors 
-		
 
+	2012 January 2 OSX Lion:
+	First is turn newlisp to real 64-bits 
+
+	make -f makefile_darwinLP64
+	
+	then edit lib fcgi' code to fix import error of _environ expected
+	
+	in the beginning of fcgi_stdio.c ,find the line of extern char** environ; 
+
+	#if !defined (__APPLE__)
+    extern char** environ;
+	#else
+	#include <crt_externs.h>
+	#define environ (*_NSGetEnviron())
+	#endif
+	
+	make clean && make && sudo make install 
+	That will fix this error.
+	
+	for faster add a function in fcgi_stdio.c, FCGI_printf will have bugs on % ,so I need a nother function
+	No issues with %
+
+	int FCGI_guuprintf( void *str)
+	{
+    	return FCGI_fwrite(str, strlen(str), 1 , FCGI_stdout);
+	}
+
+
+	
 END
 -----
 

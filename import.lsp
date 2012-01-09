@@ -1,6 +1,6 @@
-(import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_Accept")
-(import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_puts")
-(import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_printf")
-(import "/usr/local/lib/libfcgi.so.0.0.0" "FCGI_putchar")
+(setq fcgi_lib "/opt/lib/libfcgi.0.0.0.dylib")
 
-(import "libc.so.6" "strlen")
+
+(import fcgi_lib  "FCGI_Accept")
+
+(import fcgi_lib "FCGI_guuprintf")
