@@ -71,18 +71,29 @@ NORMAL ERROR ISSUES
 	for faster add a function in fcgi_stdio.c, FCGI_printf will have bugs on % ,so I need a nother function
 	No issues with %
 
-	int FCGI_guuprintf( void *str)
+	int FCGI_print( void *str)
 	{
     	return FCGI_fwrite(str, strlen(str), 1 , FCGI_stdout);
 	}
 
 
 	
-END
+Lighttpd
 -----
+	mod_fastcgi
 
-I think newlisp can be a great connector for all  languages ,c php,etc
-Not just use it for only 
-So that
-It can help me to develop faster than ever.
+	fastcgi.server = (
+		...,
+ 
+	  ".lsp" =>
+	  (( "host" => "127.0.0.1",
+	     "port" => 9000
+	  )), 
+	)
+
+PS:
+-----
+	use CGI to do file upload
+	memcache to store session record
+
 
