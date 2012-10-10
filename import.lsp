@@ -6,4 +6,4 @@
 
 (import fcgi_lib  "FCGI_Accept")
 
-(import fcgi_lib "FCGI_guuprintf")
+(import fcgi_lib "FCGI_print")

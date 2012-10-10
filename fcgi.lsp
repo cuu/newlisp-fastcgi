@@ -21,7 +21,7 @@
 		(setq arg (append arg (string y)))
     )
 
-	(FCGI_guuprintf  arg)
+	(FCGI_print  arg)
 
 ;	(for (x 0 (- (length arg) 1)) 
 ;		(FCGI_putchar (char (arg x)))  ;; TURN OFF UTF8 OR CRASH 
@@ -38,7 +38,7 @@
 ;	(FCGI_vprintf arg)
 ;	(setq arg (append arg "\r\n"))
 ;	(FCGI_puts arg)
-	(FCGI_guuprintf arg)	
+	(FCGI_print arg)	
 
 )
 
